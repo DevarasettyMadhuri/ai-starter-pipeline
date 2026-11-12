@@ -2,19 +2,20 @@
 
 WORKDIR /app
 
-# Install system dependencies for psycopg2
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc libpq-dev curl && \
     rm -rf /var/lib/apt/lists/*
 
-# Install uv for fast dependency management
+# Install uv
 RUN pip install --no-cache-dir uv
 
-# Copy project files and install dependencies
+# Copy configuration and sync dependencies without building root package
 COPY pyproject.toml uv.lock ./
-RUN uv sync --no-dev
+RUN uv sync --no-dev --no-install-project
 
-COPY app.py pipeline.py ./
+# Copy application source code
+COPY . .
 
 EXPOSE 8000
 

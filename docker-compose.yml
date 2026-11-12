@@ -26,5 +26,19 @@ services:
     depends_on:
       - db
 
+  dashboard:
+    build: .
+    container_name: ai_dashboard
+    restart: always
+    ports:
+      - "8501:8501"
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://postgres:postgres@db:5432/devdb
+      - API_URL=http://api:8000/clean-record
+    command: sh -c "pip install streamlit requests pandas sqlalchemy psycopg2-binary && streamlit run dashboard.py --server.port=8501 --server.address=0.0.0.0"
+    depends_on:
+      - db
+      - api
+
 volumes:
   pgdata_fresh:

@@ -1,4 +1,5 @@
-﻿import json
+﻿import os
+import json
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import create_engine
@@ -6,8 +7,13 @@ import pandas as pd
 import ollama
 
 app = FastAPI(title="Curated Customer AI Service")
-DB_URL = "postgresql+psycopg2://postgres:postgres@localhost:5432/devdb"
+
+# Use environment variable if provided by Docker Compose, otherwise default to local
+DB_URL = os.getenv("DATABASE_URL", "postgresql+psycopg2://postgres:postgres@localhost:5432/devdb")
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+
 engine = create_engine(DB_URL)
+ollama_client = ollama.Client(host=OLLAMA_HOST)
 
 class RawCustomerInput(BaseModel):
     cust_id: int
@@ -35,7 +41,7 @@ def process_record(customer: RawCustomerInput):
         'and "clean_address" (standardized format). No explanations, no markdown.'
     )
     try:
-        response = ollama.chat(
+        response = ollama_client.chat(
             model="qwen2.5-coder:1.5b",
             messages=[{"role": "user", "content": prompt}]
         )
