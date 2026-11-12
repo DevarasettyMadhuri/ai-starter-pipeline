@@ -2,7 +2,7 @@
 
 services:
   db:
-    image: postgres:latest
+    image: postgres:15-alpine
     container_name: devdb
     restart: always
     environment:
@@ -12,7 +12,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pgdata_fresh:/var/lib/postgresql/data
 
   api:
     build: .
@@ -27,4 +27,4 @@ services:
       - db
 
 volumes:
-  postgres_data:
+  pgdata_fresh:
